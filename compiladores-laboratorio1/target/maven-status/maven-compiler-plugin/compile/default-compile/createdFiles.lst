@@ -1,0 +1,11 @@
+ucr\ac\ecci\ci1322\laboratorio1\core\student\dao\StudentDao.class
+ucr\ac\ecci\ci1322\laboratorio1\core\student\service\StudentServiceImpl.class
+ucr\ac\ecci\ci1322\laboratorio1\core\book\dao\JdbcBookService.class
+ucr\ac\ecci\ci1322\laboratorio1\build\DataLoader.class
+ucr\ac\ecci\ci1322\laboratorio1\core\book\dao\BookDao.class
+ucr\ac\ecci\ci1322\laboratorio1\core\student\service\StudentService.class
+ucr\ac\ecci\ci1322\laboratorio1\core\book\service\BookServiceImpl.class
+ucr\ac\ecci\ci1322\laboratorio1\model\Student.class
+ucr\ac\ecci\ci1322\laboratorio1\core\book\service\BookService.class
+ucr\ac\ecci\ci1322\laboratorio1\core\student\dao\JdbcStudentService.class
+ucr\ac\ecci\ci1322\laboratorio1\model\Book.class
