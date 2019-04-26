@@ -3,22 +3,34 @@ package ucr.ac.ecci.ci1322.laboratorio1.core.book.dao;
 import ucr.ac.ecci.ci1322.laboratorio1.model.Book;
 
 import java.sql.*;
-import java.util.Properties;
 
 public class JdbcBookService implements BookDao{
 
     private Connection conn;
 
+    /**
+     * Connects with the database, and creates a book table if it's necessary
+     *
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public JdbcBookService()throws SQLException, ClassNotFoundException{
-        Class.forName("com.mysql.jdbc.Driver");
-        String url = "jdbc:mysql://127.0.0.1:3306/library";
-        conn = DriverManager.getConnection(url,"root","");
-        Statement stmt = conn.createStatement();
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        String url = "jdbc:mysql://127.0.0.1:3306/library?serverTimezone=GMT";
+        conn = DriverManager.getConnection(url,"Daniel","1234");
+
         DatabaseMetaData dbm = conn.getMetaData();
         ResultSet tables = dbm.getTables(null, null, "book", null);
         if (!tables.next()) {
-            stmt = conn.createStatement();
-            stmt.executeUpdate("create table book(Book_ID int,Type varchar(30),Title varchar(255));");
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(
+            "create table book(" +
+                    "Book_ID int NOT NULL," +
+                    "Type varchar(30)," +
+                    "Title varchar(255)," +
+                    "PRIMARY KEY (Book_ID)" +
+                ");"
+            );
             System.out.println("Book Table created");
         }
     }
@@ -26,23 +38,34 @@ public class JdbcBookService implements BookDao{
     public Book findById(String id)throws SQLException {
         Statement statement = conn.createStatement();
         ResultSet resultSet;
-        resultSet = statement.executeQuery("SELECT * FROM book WHERE Book_ID = " + id );
-        Integer ID = Integer.parseInt(resultSet.getString(1));
-        String Type = resultSet.getString(2);
-        String Title = resultSet.getString(3);
-        return new Book(ID,Type,Title);
+        resultSet = statement.executeQuery(
+                "SELECT * FROM book WHERE Book_ID = " + id
+        );
+        if(resultSet.next()) {
+            Integer ID = (resultSet.getInt(1));
+            String Type = resultSet.getString(2);
+            String Title = resultSet.getString(3);
+            return new Book(ID, Type, Title);
+        }else{
+            return null;
+        }
+
     }
 
-    public String create(Book entity) throws SQLException{
+    public String create(Book entity) throws SQLException {
         Statement statement = conn.createStatement();
-        statement.executeUpdate(
-            "INSERT INTO book VALUES("+
-                entity.getBook_ID() + "," +
-                entity.getType() + "," +
-                entity.getTitle() +
-            ");"
-        );
-        return "Book: " + entity.getBook_ID() + ", " + entity.getType() + ", " + entity.getTitle() + "; added.";
+        try {
+            statement.executeUpdate(
+                    "INSERT INTO book VALUES('"+
+                            entity.getBook_ID() + "','" +
+                            entity.getType() + "','" +
+                            entity.getTitle() +
+                        "');"
+            );
+        } catch (SQLException e) {
+            return null;
+        }
+        return "Book(" + entity.getBook_ID() + "): [" + entity.getType() + "]" + entity.getTitle() + "; added.";
     }
 
     public void update(Book entity) {

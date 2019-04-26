@@ -8,16 +8,28 @@ public class JdbcStudentService implements StudentDao {
 
     private Connection conn;
 
+    /**
+     * Connects with the database, and creates a student table if it's necessary
+     * 
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public JdbcStudentService() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
-        String url = "jdbc:mysql://127.0.0.1:3306/library";
-        conn = DriverManager.getConnection(url,"root","");
-        Statement stmt = conn.createStatement();
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        String url = "jdbc:mysql://127.0.0.1:3306/library?serverTimezone=GMT";
+        conn = DriverManager.getConnection(url,"Daniel","1234");
+
         DatabaseMetaData dbm = conn.getMetaData();
         ResultSet tables = dbm.getTables(null, null, "student", null);
         if (!tables.next()) {
-            stmt = conn.createStatement();
-            stmt.executeUpdate("create table student(Student_ID int, Name varchar(30));");
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(
+                    "create table student(" +
+                            "Student_ID int NOT NULL," +
+                            " Name varchar(50)," +
+                            "PRIMARY KEY (Student_ID)" +
+                        ");"
+            );
             System.out.println("Student Table created");
         }
     }
@@ -25,21 +37,31 @@ public class JdbcStudentService implements StudentDao {
     public Student findById(String id) throws SQLException {
         Statement statement = conn.createStatement();
         ResultSet resultSet;
-        resultSet = statement.executeQuery("SELECT * FROM student WHERE Student_ID = " + id );
-        Integer ID = Integer.parseInt(resultSet.getString(1));
-        String Name = resultSet.getString(2);
-        return new Student(ID,Name);
+        resultSet = statement.executeQuery(
+                "SELECT * FROM student WHERE Student_ID = " + id
+        );
+        if(resultSet.next()) {
+            Integer ID = resultSet.getInt(1);
+            String Name = resultSet.getString(2);
+            return new Student(ID, Name);
+        }else{
+            return null;
+        }
     }
 
     public String create(Student entity) throws SQLException {
         Statement statement = conn.createStatement();
-        statement.executeUpdate(
-            "INSERT INTO book VALUES("+
-                entity.getStudent_ID() + "," +
-                entity.getName() +
-            ");"
-        );
-        return "Student: " + entity.getStudent_ID() + ", " + entity.getName() + "; added.";
+        try {
+            statement.executeUpdate(
+                    "INSERT INTO student VALUES('"+
+                            entity.getStudent_ID() + "','" +
+                            entity.getName() +
+                        "');"
+            );
+        } catch (SQLException e) {
+            return null;
+        }
+        return "Student(" + entity.getStudent_ID() + "): " + entity.getName() + "; added.";
     }
 
     public void update(Student entity) {
